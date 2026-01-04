@@ -195,8 +195,8 @@ These outputs map directly to physical FPGA I/O resources.
 
 ## 👨‍💻 Authors
 
-**Devansh Joshi**  
-**Suren Shirani**
+**Devansh Joshi** - [GitHub](https://github.com/DJdaGOAT1)  
+**Suren Shirani** - [GitHub](https://github.com/ssWaterFlowing)
 
 The system was designed, implemented, and verified by the authors with a focus on **real-world correctness** and **FPGA compatibility**.
 

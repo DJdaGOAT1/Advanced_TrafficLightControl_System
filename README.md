@@ -87,15 +87,16 @@ The controller is implemented as a **Moore FSM**, meaning:
 ### FSM State Flow:
 1. North–South Left Green *(Initial State)*
 2. North–South Left Yellow
-3. All Red (Safety Interval)
+3. All Red 
 4. North–South Straight Green
 5. North–South Straight Yellow
 6. All Red
 7. East–West Left Green
 8. East–West Left Yellow
-9. East–West Straight Green
-10. East–West Straight Yellow
-11. All Red → Loop Back
+9. All Red
+10. East–West Straight Green
+11. East–West Straight Yellow
+12. All Red → Loop Back
 
 Tracking the **previous non–all-red state** ensures deterministic and safe sequencing after each safety interval.
 

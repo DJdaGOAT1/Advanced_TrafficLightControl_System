@@ -7,7 +7,7 @@
 
 This project implements a **realistic, hardware-synthesizable traffic light controller** using **Verilog HDL** for a **four-way intersection** with advanced signal phasing. The system is designed using a **Moore Finite State Machine (FSM)** and is **directly synthesized onto FPGA hardware**, where physical LEDs represent real traffic signals.
 
-Unlike many publicly available Verilog traffic light examples—which are often simplified, simulation-only demonstrations—this design emphasizes **real-world compatibility, safety, and hardware correctness**.
+Unlike many publicly available Verilog traffic light examples—which are often simplified, simulation-only demonstrations-this design emphasizes **real-world compatibility, safety, and hardware correctness**.
 
 Key features include:
 

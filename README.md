@@ -160,6 +160,23 @@ This makes the design **directly observable and verifiable in real time**, a cap
 
 ---
 
+## 📐 FPGA Constraints File (XDC)
+
+A dedicated **constraints file (.xdc)** is used to map the Verilog design to physical FPGA hardware.
+
+### Constraints Overview:
+- **12 LED outputs** mapped to FPGA LED pins  
+  - North–South straight (R/Y/G)  
+  - East–West straight (R/Y/G)  
+  - North–South left (R/Y/G)  
+  - East–West left (R/Y/G)
+- **Push-button input** mapped as an **active-high asynchronous reset**
+- **Clock constraint** defined using `create_clock` for correct timing analysis
+
+The constraints file ensures correct pin mapping, proper clock recognition, and reliable real-world FPGA operation.
+
+---
+
 ## 🔌 Module Interface Summary
 
 ### Inputs
@@ -187,4 +204,4 @@ This system was jointly designed, implemented, deeply verified with testbenches,
 
 ## 🏁 Conclusion
 
-This project represents a **hardware-accurate, safety-aware, and highly compatible traffic light controller**. By incorporating protected left turns, main-road prioritization, Moore FSM discipline, right-turn realism, deep verification, and FPGA deployment, the design exceeds the scope and quality of most publicly available Verilog traffic light projects and closely reflects **modern real-world traffic signal controllers**.
+This project represents a **hardware-accurate, safety-aware, and highly compatible traffic light controller**. By incorporating protected left turns, main-road prioritization, Moore FSM discipline, right-turn realism, deep verification, and FPGA deployment, the design closely reflects **modern real-world traffic signal controllers**.

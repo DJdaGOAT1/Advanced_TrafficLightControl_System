@@ -1,0 +1,4 @@
+INFO: [VRFC 10-2263] Analyzing Verilog file "C:/Users/Joshi/VerilogProjects/TrafficLight_System/TrafficLight_System.srcs/sources_1/new/TL_System_Design.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module TL_System_Design
+INFO: [VRFC 10-2263] Analyzing Verilog file "C:/Users/Joshi/VerilogProjects/TrafficLight_System/TrafficLight_System.srcs/sim_1/new/TL_System_Design_TB.v" into library xil_defaultlib
+INFO: [VRFC 10-311] analyzing module TL_System_Design_TB

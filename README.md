@@ -5,192 +5,191 @@
 
 ## 📌 Project Overview
 
-This project implements a **realistic, hardware-synthesizable traffic light controller** using **Verilog HDL** for a **four-way intersection** with advanced signal phasing. The system is designed using a **Moore Finite State Machine (FSM)** and is **directly synthesized onto FPGA hardware**, where physical LEDs represent real traffic signals.
-
-Unlike many publicly available Verilog traffic light examples—which are often simplified, simulation-only demonstrations—this design emphasizes **real-world compatibility, safety, and hardware correctness**.
+This project implements a **realistic, hardware-synthesizable traffic light controller** using **Verilog HDL** for a **four-way intersection**. The system employs a **Moore Finite State Machine (FSM)** and is synthesized onto FPGA hardware, where physical LEDs represent the traffic signals.
 
 Key features include:
-
-- **Main-road prioritization (North–South direction)**
-- **Protected left-turn signals for all approaches**
-- **Independent straight and left-turn phases**
-- **Realistic, parameterized timing behavior**
+- **Main-road prioritization (North-South)**
+- **Protected left-turn signals** for all directions
+- **Independent phases** for straight and left-turn movements
+- **Parameterized timing** for flexibility across different platforms
 - **Explicit all-red safety intervals**
-- **Deep verification using comprehensive testbenches**
-- **Direct FPGA deployment (e.g., Digilent Basys 3 board)**
+- **Comprehensive testbenches for verification**
+- **FPGA deployment** (e.g., Digilent Basys 3 board)
 
 ---
 
 ## 🧠 Design Compatibility & Realism
 
-### Why This Design Is More Complete Than Typical Verilog Traffic Light Projects
+### Key Differences from Common Verilog Traffic Light Projects
 
-A large number of publicly available Verilog traffic light controllers:
-- Model only **two traffic directions**
-- Ignore **left-turn protection**
+Many basic Verilog traffic light designs:
+- Handle only **two directions**
+- Lack **left-turn protection**
 - Omit **all-red safety buffers**
-- Use monolithic or Mealy-style logic prone to glitches
-- Are difficult to map cleanly to FPGA hardware
-- Are intended solely for waveform simulation
+- Use **Mealy-style logic** prone to glitches
+- Are intended only for **simulation**, not hardware deployment
 
-This project was intentionally designed to address those limitations.
+This project resolves these limitations, offering:
+- A **Moore FSM** design that guarantees **stable outputs**, ideal for FPGA synthesis
+- **Parameter-driven timing**, adaptable to various FPGA clock frequencies
+- **Safety intervals** (all-red phases) reflecting real-world traffic logic
+- **Clear separation of logic** for easy FPGA integration
 
-### Key Compatibility Advantages
+---
 
-- **Moore FSM discipline** ensures outputs depend only on state, making the design:
-  - Easier to synthesize
-  - Safer for timing closure
-  - Less prone to glitches on real hardware
-- **Parameter-driven timing** allows the controller to adapt to different clock frequencies and deployment platforms without code restructuring
-- **Explicit safety states** (all-red intervals) mirror real traffic controllers and satisfy hardware safety constraints
-- **Clear separation of logic** (state register, next-state logic, output decoding) aligns with industry-standard RTL design practices
+## ⚙️ Implementation Logic
 
-As a result, this design integrates cleanly into **FPGA-based systems** and scales better than most instructional examples found online.
+### FSM Structure
+The controller uses a **Moore FSM** with three key registers:
+- **`state [3:0]`** - Current state (4-bit encoding for 9 states)
+- **`next_state [3:0]`** - Calculated next state
+- **`prev_state [3:0]`** - Tracks last non-all-red state for proper sequencing after safety intervals
+
+### Timer-Based Control
+- **8-bit counter (`timer`)** tracks duration in each state
+- Increments every clock cycle, resets on state transitions
+- Compared against parameterized durations to trigger state changes
+
+### State Encoding (4-bit)
+```
+0000 - NS Left Green (initial)
+0001 - NS Left Yellow
+0010 - NS Straight Green
+0011 - NS Straight Yellow
+0100 - EW Left Green
+0101 - EW Left Yellow
+0110 - EW Straight Green
+0111 - EW Straight Yellow
+1000 - All Red (safety state)
+```
+
+### Three-Block Architecture
+1. **Sequential Logic** - Updates state and timer on clock edge
+2. **Combinational Logic** - Calculates next_state based on current state and timer
+3. **Output Logic** - Sets 12 traffic light outputs (defaults all to RED, then activates required signals)
 
 ---
 
 ## 🚘 Supported Traffic Movements
 
-The intersection supports **four independent traffic movements**:
-
+The system controls four traffic movements:
 - North–South straight
 - North–South left turns
 - East–West straight
 - East–West left turns
 
-Each movement is controlled by its own FSM phase, ensuring **non-conflicting signal combinations** and realistic operation.
+Each movement operates independently with non-conflicting signal phases.
 
 ---
 
-## ↪ Right-Turn Handling Assumptions
+## ↪ Right-Turn Handling
 
-This design **intentionally excludes explicit right-turn signal control**, reflecting real-world traffic laws and engineering practice, particularly in regions such as the **United States**.
+This design **excludes explicit right-turn signals**, aligning with common traffic engineering practices where:
+- **Right turns on red** are generally allowed after a full stop, unless otherwise stated.
+- The right-turn decision is a **driver's responsibility**, not a traffic controller's.
 
-### Rationale:
-- **Right turns are generally permitted on red** (after a complete stop), unless signage explicitly prohibits them.
-- Right-turn behavior is therefore a **driver decision**, not a traffic-controller decision.
-- Including right-turn phases would not improve realism and would unnecessarily complicate the controller.
-
-Right turns are therefore **implicitly supported** and are **outside the scope of the signal logic itself**.
+Thus, right turns are **implicitly supported** but do not affect signal logic.
 
 ---
 
-## 🔁 Moore Finite State Machine Architecture
+## 🔁 Moore FSM State Flow
 
-The controller is implemented as a **Moore FSM**, meaning:
+The controller cycles through these phases with all-red safety intervals between conflicting movements:
 
-- All outputs depend **only on the current state**
-- Outputs do **not depend directly on inputs**
-- Signal changes occur only on state transitions
-- Guarantees **stable, glitch-free outputs**, ideal for FPGA synthesis
-
-### FSM State Flow:
-1. North–South Left Green *(Initial State)*
-2. North–South Left Yellow
-3. All Red 
-4. North–South Straight Green
-5. North–South Straight Yellow
+1. North-South Left Green
+2. North-South Left Yellow
+3. All Red
+4. North-South Straight Green
+5. North-South Straight Yellow
 6. All Red
-7. East–West Left Green
-8. East–West Left Yellow
+7. East-West Left Green
+8. East-West Left Yellow
 9. All Red
-10. East–West Straight Green
-11. East–West Straight Yellow
-12. All Red → Loop Back
-
-Tracking the **previous non–all-red state** ensures deterministic and safe sequencing after each safety interval.
+10. East-West Straight Green
+11. East-West Straight Yellow
+12. All Red → Repeat
 
 ---
 
-## ⏱ Realistic Timing Control
+## ⏱ Timing Control
 
-Each phase duration is implemented using a **clock-driven counter**, closely emulating real traffic signal controllers.
+Each phase duration is defined by a **clock-driven counter** to simulate real traffic light behavior.
 
-| Phase | Duration (Clock Cycles) |
-|------|--------------------------|
-| Left-turn green | 5 |
-| North–South straight green | 15 |
-| East–West straight green | 10 |
-| Yellow (all directions) | 2 |
-| All-red safety | 2 |
+| Phase               | Duration (Clock Cycles) |
+|---------------------|-------------------------|
+| Left-turn green      | 5                       |
+| North-South green    | 15                      |
+| East-West green      | 10                      |
+| Yellow (all)         | 2                       |
+| All-red safety       | 2                       |
 
-All timing values are **parameterized**, making the design compatible with a wide range of FPGA clock frequencies and platforms.
+All timings are **parameterized**, enabling flexibility across different platforms.
 
 ---
 
-## 🛡 Safety-Critical Design Features
+## 🛡 Safety-Critical Features
 
-- Explicit **all-red intervals** between conflicting movements
-- Default output state is **all red**
-- No overlapping green signals by construction
-- Strict FSM sequencing prevents undefined behavior
+Key safety design choices:
+- **All-red intervals** between conflicting movements
+- **Default state is all red** - output logic defaults all signals to RED, then explicitly activates required lights
+- No simultaneous greens, ensuring no conflicts
+- Strict FSM sequencing to avoid undefined behavior
 
-These choices align the controller with **real traffic engineering standards**, rather than purely academic demonstrations.
+These features mirror **real-world traffic controllers**.
 
 ---
 
 ## 🧪 Verification & Testbenches
 
-The system has been **deeply verified using comprehensive Verilog testbenches**, which:
+The system undergoes **thorough verification** through Verilog testbenches, covering:
+- FSM state transitions
+- Timing accuracy
+- Illegal or unsafe output combinations
+- Reset and recovery behavior
 
-- Exercise all FSM states and transitions
-- Validate timing accuracy
-- Detect illegal or unsafe output combinations
-- Confirm correct reset and recovery behavior
-
-This verification process ensures the design behaves correctly both in simulation and when deployed on hardware.
+This ensures the design works both in simulation and on hardware.
 
 ---
 
-## 🧩 FPGA Hardware Implementation
+## 🧩 FPGA Implementation
 
-The controller is **fully synthesizable** and has been deployed on **FPGA hardware**, including:
-
+The controller is fully synthesizable and has been deployed on an **FPGA**, including:
 - **Digilent Basys 3 FPGA Board**
-- Xilinx **Artix-7** architecture
+- **Xilinx Artix-7** architecture
 
 ### Hardware Mapping:
-- Each traffic signal output is mapped to a **dedicated onboard LED**
-- LEDs represent:
-  - Red / Yellow / Green straight signals
-  - Red / Yellow / Green left-turn signals
-- Clock driven by FPGA system clock
-- Reset controlled via onboard push-button
+- 12 **LED outputs** for each signal (Red/Yellow/Green for both straight and left-turn signals)
+- **Clock** driven by the FPGA system clock
+- **Reset** controlled via an onboard push-button
 
-This makes the design **directly observable and verifiable in real time**, a capability absent from many public Verilog examples.
+This setup allows **real-time verification** of the design on hardware.
 
 ---
 
 ## 📐 FPGA Constraints File (XDC)
 
-A dedicated **constraints file (.xdc)** is used to map the Verilog design to physical FPGA hardware.
+An **XDC file** maps the Verilog design to the physical FPGA:
+- **12 LED outputs** for each signal
+- **Push-button input** for an asynchronous reset
+- **Clock constraint** for accurate timing analysis
 
-### Constraints Overview:
-- **12 LED outputs** mapped to FPGA LED pins  
-  - North–South straight (R/Y/G)  
-  - East–West straight (R/Y/G)  
-  - North–South left (R/Y/G)  
-  - East–West left (R/Y/G)
-- **Push-button input** mapped as an **active-high asynchronous reset**
-- **Clock constraint** defined using `create_clock` for correct timing analysis
-
-The constraints file ensures correct pin mapping, proper clock recognition, and reliable real-world FPGA operation.
+The constraints file ensures proper pin mapping and FPGA operation.
 
 ---
 
-## 🔌 Module Interface Summary
+## 🔌 Module Interface
 
-### Inputs
-- `clk` — FPGA system clock  
-- `reset` — Asynchronous hardware reset  
+### Inputs:
+- `clk` — FPGA system clock
+- `reset` — Asynchronous reset
 
-### Outputs (12 Total)
-- North–South: red, yellow, green
-- East–West: red, yellow, green
-- North–South Left: red, yellow, green
-- East–West Left: red, yellow, green
+### Outputs:
+- North-South: red, yellow, green
+- East-West: red, yellow, green
+- North-South Left: red, yellow, green
+- East-West Left: red, yellow, green
 
-Each output maps cleanly to physical FPGA I/O resources.
+These outputs map directly to physical FPGA I/O resources.
 
 ---
 
@@ -199,10 +198,10 @@ Each output maps cleanly to physical FPGA I/O resources.
 **Devansh Joshi**  
 **Suren Shirani**
 
-This system was jointly designed, implemented, deeply verified with testbenches, and synthesized on FPGA hardware by the authors, with a strong focus on **compatibility, safety, and real-world correctness**.
+The system was designed, implemented, and verified by the authors with a focus on **real-world correctness** and **FPGA compatibility**.
 
 ---
 
 ## 🏁 Conclusion
 
-This project represents a **hardware-accurate, safety-aware, and highly compatible traffic light controller**. By incorporating protected left turns, main-road prioritization, Moore FSM discipline, right-turn realism, deep verification, and FPGA deployment, the design closely reflects **modern real-world traffic signal controllers**.
+This project delivers a **realistic, hardware-compatible traffic light controller** with main-road prioritization, protected left turns, and robust safety features. Its use of Moore FSM, flexible timing, deep verification, and FPGA deployment make it a practical solution for real-world traffic signal control.

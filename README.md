@@ -43,9 +43,9 @@ This project addresses all of those:
 
 ### FSM Structure
 The controller uses a Moore FSM with three key registers:
-- `state [3:0]` — Current state (4-bit encoding for 9 states)
-- `next_state [3:0]` — Calculated next state
-- `prev_state [3:0]` — Tracks the last non-all-red state for proper sequencing after safety intervals
+- `state [3:0]` - Current state (4-bit encoding for 9 states)
+- `next_state [3:0]` - Calculated next state
+- `prev_state [3:0]` - Tracks the last non-all-red state for proper sequencing after safety intervals
 
 ### Clock Divider
 The Basys 3 runs at 100 MHz, which is far too fast to observe anything on LEDs. A 26-bit counter divides that down to 1 Hz, so each FSM state lasts a visible number of seconds. All state transitions and timer updates are driven by this 1 Hz clock.
@@ -69,9 +69,9 @@ The Basys 3 runs at 100 MHz, which is far too fast to observe anything on LEDs. 
 ```
 
 ### Three-Block Architecture
-1. Sequential Logic — Updates state and timer on clock edge
-2. Combinational Logic — Calculates next_state based on current state and timer
-3. Output Logic — Sets 12 traffic light outputs (defaults all to red, then activates the required signals)
+1. Sequential Logic - Updates state and timer on clock edge
+2. Combinational Logic - Calculates next_state based on current state and timer
+3. Output Logic - Sets 12 traffic light outputs (defaults all to red, then activates the required signals)
 
 ---
 
@@ -136,7 +136,7 @@ Total cycle time is 72 seconds. All timings are parameterized in the Verilog sou
 
 Key safety design choices:
 - All-red intervals between every conflicting movement
-- Output logic defaults all 12 signals to red, then selectively turns on the active ones — if anything goes wrong, the default state is safe
+- Output logic defaults all 12 signals to red, then selectively turns on the active ones - if anything goes wrong, the default state is safe
 - No simultaneous conflicting greens
 - Strict FSM sequencing with no undefined or unreachable states
 
@@ -165,7 +165,7 @@ The controller is fully synthesizable and has been deployed on:
 - LD6–LD8: North-South left (red, yellow, green)
 - LD9–LD11: East-West left (red, yellow, green)
 - BTNC (U18): Reset
-- SW0 (V17): Clock enable — flip up to run, down to pause
+- SW0 (V17): Clock enable - flip up to run, down to pause
 - W5: 100 MHz system clock input
 
 All I/O uses LVCMOS33.
@@ -197,8 +197,8 @@ All I/O uses the LVCMOS33 standard.
 | Signal   | Description                                       |
 |----------|---------------------------------------------------|
 | `clk`    | 100 MHz system clock (divided to 1 Hz internally) |
-| `clk_en` | Clock enable — active high, mapped to SW0         |
-| `reset`  | Asynchronous reset — active high, mapped to BTNC  |
+| `clk_en` | Clock enable - active high, mapped to SW0         |
+| `reset`  | Asynchronous reset - active high, mapped to BTNC  |
 
 ### Outputs:
 | Signal Group    | Signals                                        |
@@ -212,7 +212,7 @@ All I/O uses the LVCMOS33 standard.
 
 ## 👨‍💻 Authors
 
-**Devansh Joshi** — [GitHub](https://github.com/DJdaGOAT1)  
-**Suren Shirani** — [GitHub](https://github.com/ssWaterFlowing)
+**Devansh Joshi** - [GitHub](https://github.com/DJdaGOAT1)  
+**Suren Shirani** - [GitHub](https://github.com/ssWaterFlowing)
 
 We designed, implemented, and verified this system with a focus on real-world correctness and FPGA compatibility.

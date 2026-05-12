@@ -212,7 +212,7 @@ All I/O uses the LVCMOS33 standard.
 
 ## 👨‍💻 Authors
 
-**Devansh Joshi** - [GitHub](https://github.com/DJdaGOAT1)  
+**Devansh Joshi** - [GitHub](https://github.com/devanshjoshi08)  
 **Suren Shirani** - [GitHub](https://github.com/ssWaterFlowing)
 
 We designed, implemented, and verified this system with a focus on real-world correctness and FPGA compatibility.
